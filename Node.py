@@ -11,6 +11,7 @@ class Node:
             self.move_num = self.parent.move_num + 1
         else:
             self.move_num = 0
+
         #distance/heuristic is the sum of x and y distances from a state to the goal
         if goal is not None:
             distance = abs(self.state[0] - goal[0]) + abs(self.state[1] - goal[1])

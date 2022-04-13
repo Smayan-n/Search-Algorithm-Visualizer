@@ -160,7 +160,7 @@ class Maze:
 def main():
     
      #pasing in file to be parsed
-    mazeTemplate = parseTextFile("mazes/maze2.txt")
+    mazeTemplate = parseTextFile("mazes/maze5.txt")
     #maze object
     maze = Maze(mazeTemplate)
 
@@ -170,13 +170,13 @@ def main():
     print("Solving....")
 
     #solve maze using BFS or DFS
-    maze.solve("BFS")
+    maze.solve("DFS")
 
     #printing out solved maze
     print("Maze solved! ")
     print("states explored: " + str(maze.num_states_explored))
     print()
-    maze.print(show_solution=True, show_explored=False)
+    maze.print(show_solution=True, show_explored=True)
     
 
 if __name__ == '__main__':

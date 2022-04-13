@@ -2,7 +2,10 @@ from Frontiers import StackFrontier
 from Node import Node
 from maze_text_parser import parseTextFile
 #uses A* search
-#calculates optimal path, not efficient path.
+#calculates the most optimal path, but explores more states as a result
+
+#only heuristic search will not always calculate optimal path, but will explore lesser states
+
 
 class Maze:
     def __init__(self, maze):
@@ -153,7 +156,7 @@ class Maze:
 def main():
 
     #pasing in file to be parsed
-    mazeTemplate = parseTextFile("mazes/maze2.txt")
+    mazeTemplate = parseTextFile("mazes/maze6.txt")
     #maze object
     maze = Maze(mazeTemplate)
 
@@ -162,7 +165,6 @@ def main():
     maze.print()
     print("Solving....")
 
-    #solve maze using BFS or DFS
     maze.solve()
 
     #printing out solved maze
