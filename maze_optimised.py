@@ -1,17 +1,6 @@
 from Frontiers import StackFrontier
+from Node import Node
 #using heuristic ans A* search
-
-#node class
-class Node:
-    def __init__(self, state = None, parent = None, action = None, goal = None):
-        #the state in this case is a 2D coordinate
-        self.state = state
-        self.parent = parent
-        self.action = action
-
-        #heuristic is the sum of x and y distances from a state to the goal
-        self.heuristic = abs(self.state[0] - goal[0]) + abs(self.state[1] - goal[1])
-
 
 class Maze:
     def __init__(self, maze):

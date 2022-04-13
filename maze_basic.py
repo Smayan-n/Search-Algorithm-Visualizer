@@ -1,18 +1,10 @@
 from Frontiers import StackFrontier, QueueFrontier
+from Node import Node
 #using bare DFS and BFS
-
-#node class
-class Node:
-    def __init__(self, state = None, parent = None, action = None):
-        #the state in this case is a 2D coordinate
-        self.state = state
-        self.parent = parent
-        self.action = action
 
 class Maze:
     def __init__(self, maze):
         
-          
         #parse 2d maze array
 
         #arr of boolean that stores true if wall, and false if no wall at that coord
