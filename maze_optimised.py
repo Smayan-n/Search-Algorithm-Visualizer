@@ -1,6 +1,7 @@
 from Frontiers import StackFrontier
 from Node import Node
-#using heuristic ans A* search
+from maze_text_parser import parseTextFile
+#using A* search
 
 class Maze:
     def __init__(self, maze):
@@ -127,12 +128,19 @@ class Maze:
             #adding neighbors to frontier if they are not already explored and are not currently in the frontier
             for action, state in self.neighbors(node.state):
                 if state not in self.explored and not frontier.contains_state(state):
-                    child_node = Node(state=state, parent=node, action=action, goal = self.goal)
+                    child_node = Node(state=state, parent=node, action=action, goal = self.goal, move_num = self.moveNumber(node))
                     frontier.add(child_node)
 
-            #sorting the nodes in the frontier in descending order
-            #so that the ones closest to the goal will be explored first
-            frontier.heuristic_sort()            
+            #sorting the nodes in the frontier are in descending order
+            #so that the ones with the lowest cost are explored first
+            frontier.sort_by_cost()  
+
+    def moveNumber(self, node):
+        moves = 0
+        while node.parent is not None:
+            moves += 1
+            node = node.parent
+        return moves
 
     def neighbors(self, state):
         row, col = state
@@ -148,26 +156,11 @@ class Maze:
                 approved_states.append((action, (row, col)))
 
         return approved_states
-
-#converts text file to 2D array
-def parseTextFile(filename):
-    
-    with open(filename, 'r') as f:
-        lines = f.readlines()
-        
-    template = []
-    for line in lines:
-        line = line.strip("\n")
-        row = list(line)
-        template.append(row)
-
-    return template
-    
     
 def main():
 
     #pasing in file to be parsed
-    mazeTemplate = parseTextFile("mazes/maze4.txt")
+    mazeTemplate = parseTextFile("mazes/maze5.txt")
     #maze object
     maze = Maze(mazeTemplate)
 

@@ -30,12 +30,12 @@ class StackFrontier():
             self.frontier.pop(-1)
             return node
 
-    def heuristic_sort(self):
+    def sort_by_cost(self):
         
         #sorting the nodes in the frontier in descending order
-        #so that the ones closest to the goal will be explored first
-        self.frontier.sort(key = lambda x : x.heuristic, reverse = True)
-
+        #so that the ones with the lowest cost are explored first
+        self.frontier.sort(key = lambda x : x.cost, reverse = True)
+    
 
 #used for a queue data structure for BFS
 #inherits from StackFrontier

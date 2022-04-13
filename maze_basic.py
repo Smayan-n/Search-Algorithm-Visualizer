@@ -1,5 +1,7 @@
 from Frontiers import StackFrontier, QueueFrontier
 from Node import Node
+from maze_text_parser import parseTextFile
+
 #using bare DFS and BFS
 
 class Maze:
@@ -153,28 +155,12 @@ class Maze:
                 approved_states.append((action, (row, col)))
 
         return approved_states
-        
-
-#converts text file to 2D array
-def parseTextFile(filename):
-    
-    with open(filename, 'r') as f:
-        lines = f.readlines()
-        
-    template = []
-    for line in lines:
-        line = line.strip("\n")
-        row = list(line)
-        template.append(row)
-
-    return template
-    
      
 
 def main():
     
      #pasing in file to be parsed
-    mazeTemplate = parseTextFile("mazes/maze4.txt")
+    mazeTemplate = parseTextFile("mazes/maze2.txt")
     #maze object
     maze = Maze(mazeTemplate)
 
