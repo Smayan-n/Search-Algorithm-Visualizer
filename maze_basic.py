@@ -126,7 +126,7 @@ class Maze:
                 states.reverse()
                 self.solution = (actions, states)
 
-                return
+                return self.solution
                 
 
             #else add state to explored states
@@ -176,7 +176,7 @@ def main():
     print("Maze solved! ")
     print("states explored: " + str(maze.num_states_explored))
     print()
-    maze.print(show_solution=True, show_explored=True)
+    maze.print(show_solution=True, show_explored=False)
     
 
 if __name__ == '__main__':

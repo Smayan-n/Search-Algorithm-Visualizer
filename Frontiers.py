@@ -34,7 +34,7 @@ class StackFrontier():
         
         #sorting the nodes in the frontier in descending order
         #so that the ones with the lowest cost are explored first
-        self.frontier.sort(key = lambda x : x.cost, reverse = True)
+        self.frontier.sort(key = lambda x : x.total_cost, reverse = True)
     
 
 #used for a queue data structure for BFS
