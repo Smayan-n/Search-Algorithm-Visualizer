@@ -1,4 +1,5 @@
-
+from Frontiers import StackFrontier, QueueFrontier
+#using bare DFS and BFS
 
 #node class
 class Node:
@@ -8,62 +9,17 @@ class Node:
         self.parent = parent
         self.action = action
 
-#fronties classes: Stack and Queue
-        #DFS
-class StackFrontier():
-    def __init__(self):
-        self.frontier = []
-
-    def add(self, node):
-        self.frontier.append(node)
-
-    def contains_state(self, state):
-        #return any(node.state == state for node in self.frontier)
-        
-        for node in self.frontier:
-            if node.state == state:
-                return True
-
-        return False
-
-
-    def empty(self):
-        return len(self.frontier) == 0
-
-    def remove(self):
-        if self.empty():
-            raise Exception("Empty Frontier")
-
-        else:
-            #last element
-            node = self.frontier[-1]
-            #remove last element
-            self.frontier.pop(-1)
-            return node
-
-
-#inherits from StackFrontier bc all functions except remove are the same
-        #BFS
-class QueueFrontier(StackFrontier):
-
-    def remove(self):
-        if self.empty():
-            raise Exception("Empty Frontier")
-
-        else:
-            #first element
-            node = self.frontier[0]
-            #remove first element
-            self.frontier.pop(0)
-            return node
-
 class Maze:
     def __init__(self, maze):
         
-        #parse mazeTemplate arr
+          
+        #parse 2d maze array
 
         #arr of boolean that stores true if wall, and false if no wall at that coord
         self.walls = []
+
+        self.start = None
+        self.goal = None
 
         #maze has to be a square
         self.height = len(maze)
@@ -78,33 +34,35 @@ class Maze:
                 try:
                     cell = maze[row][col]
                     
-                    if cell == 1:
+                    if cell == 'A':
                         self.start = (row, col)
                         walls_row.append(False)
-                    elif cell == 2:
+                    elif cell == 'B':
                         self.goal = (row, col)
                         walls_row.append(False)
-                    elif cell == 0:
+                    
+                    if cell == ' ':
                         walls_row.append(False)
-                    else:
+                    elif cell == '#':
                         #wall exists
                         walls_row.append(True)
                     
                 except IndexError:
-                    #for rows that are shorter that the rest, they are assumed to be walls as well
+                    #for rows that are shorter that the rest, they are assumed to be clear cells
                     walls_row.append(False)
-                   
 
-            self.walls.append(walls_row)
-        
+            self.walls.append(walls_row)                 
 
-    def print(self, default = True, show_explored = False):
-        if not default:
-            solution_states = self.solution[1]
-            explored = self.explored_states
-        else:
-            solution_states = None
-            explored = None
+        #setting up solution and explored arr
+        self.solution = [[], []]
+        self.explored = []
+
+        #making sure there is a start and end
+        if self.start is None or self.goal is None:
+            raise Exception("needs one start and end cell")
+
+    def print(self, show_solution = False, show_explored = False):
+        solution = self.solution[1] #only the states
 
         for i, row in enumerate(self.walls):
             for j, col in enumerate(row):
@@ -113,19 +71,18 @@ class Maze:
                     print("█", end="") #the end arg makes it so no new line is printed
                 elif (i, j) == self.start:
                     print("A", end="")
-                elif (i, j) == self.goal:
+                elif (i, j) == self.goal: 
                     print("B", end="")
-                elif solution_states is not None and (i, j) in solution_states:
+                elif show_solution and (i, j) in solution:
                     print("*", end="")
                 #explored states
-                elif show_explored and explored is not None and (i, j) in explored:
+                elif show_explored and (i, j) in self.explored:
                     print("●", end="")
                 else:
                     print(" ", end="")
 
             print() 
         print()
-        
 
     def solve(self, method = "DFS"):
 
@@ -133,7 +90,7 @@ class Maze:
         self.num_states_explored = 0
 
         #explored states
-        self.explored_states = set()
+        self.explored = set()
 
         #starting node
         start = Node(state=self.start, parent=None, action=None)
@@ -179,12 +136,12 @@ class Maze:
                 
 
             #else add state to explored states
-            self.explored_states.add(node.state)
+            self.explored.add(node.state)
 
 
             #adding neighbors to frontier if they are not already explored and are not currently in the frontier
             for action, state in self.neighbors(node.state):
-                if state not in self.explored_states and not frontier.contains_state(state):
+                if state not in self.explored and not frontier.contains_state(state):
                     child_node = Node(state=state, parent=node, action=action)
                     frontier.add(child_node)
 
@@ -205,24 +162,28 @@ class Maze:
 
         return approved_states
         
+
+#converts text file to 2D array
+def parseTextFile(filename):
     
+    with open(filename, 'r') as f:
+        lines = f.readlines()
+        
+    template = []
+    for line in lines:
+        line = line.strip("\n")
+        row = list(line)
+        template.append(row)
+
+    return template
+    
+     
 
 def main():
     
-    # 0 = empty, 1 = start, 2 = end, 3 = wall
-    #has to have one start and one end
-    mazeTemplate = [[3, 3, 3, 0, 0, 3, 3, 3],
-                    [0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3],
-                    [2, 3, 3, 0, 3, 3, 0, 0, 0, 0, 3],
-                    [0, 3, 0, 0, 0, 0, 3, 3, 3, 0, 3],
-                    [0, 0, 0, 3, 0, 3, 0, 0, 0, 0, 3],
-                    [3, 0, 3, 3, 0, 3, 0, 0, 0, 2, 3],
-                    [3, 1, 0, 0, 0, 3, 3],
-                    ]
-
-
+     #pasing in file to be parsed
+    mazeTemplate = parseTextFile("mazes/maze4.txt")
     #maze object
-    #pasing in template to be parsed
     maze = Maze(mazeTemplate)
 
     #print unsolved maze first
@@ -237,10 +198,7 @@ def main():
     print("Maze solved! ")
     print("states explored: " + str(maze.num_states_explored))
     print()
-    maze.print(default=False, show_explored=False)
-   
-    
-
+    maze.print(show_solution=True, show_explored=True)
     
 
 if __name__ == '__main__':
