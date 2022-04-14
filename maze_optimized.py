@@ -1,6 +1,7 @@
 from Frontiers import StackFrontier
 from Node import Node
 from maze_text_parser import parseTextFile
+import time
 #uses A* search
 #calculates the most optimal path, but explores more states as a result
 
@@ -9,7 +10,7 @@ from maze_text_parser import parseTextFile
 
 class Maze:
     def __init__(self, maze):
-        
+
         #parse 2d maze array
 
         #arr of boolean that stores true if wall, and false if no wall at that coord
@@ -171,8 +172,7 @@ def main():
     print("Maze solved! ")
     print("states explored: " + str(maze.num_states_explored))
     print()
-    maze.print(show_solution=True, show_explored=False)
-    
+    maze.print(show_solution=True, show_explored=False)   
 
 if __name__ == '__main__':
     main()
