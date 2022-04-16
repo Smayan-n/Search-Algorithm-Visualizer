@@ -119,12 +119,12 @@ class StartUpUI(QWidget):
                 rows = int(self.entry_box1.text())
                 cols = int(self.entry_box2.text())
                 #validating dimentions range
-                if rows > 30: self.setError(self.entry_box1)
+                if rows > 25: self.setError(self.entry_box1)
                 else: self.clearError(self.entry_box1)
-                if cols > 60: self.setError(self.entry_box2)
+                if cols > 55: self.setError(self.entry_box2)
                 else: self.clearError(self.entry_box2)
 
-                if rows <= 30 and cols <= 60:
+                if rows <= 25 and cols <= 55:
                     #passing option and dimensions to startMazeUI
                     self.mainWin.startMazeUI("create", (int(self.entry_box1.text()), int(self.entry_box2.text())))
 
