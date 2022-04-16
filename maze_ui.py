@@ -1,7 +1,5 @@
 #created using PyQt5
 
-from mailbox import NotEmptyError
-from tkinter import Widget
 from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
