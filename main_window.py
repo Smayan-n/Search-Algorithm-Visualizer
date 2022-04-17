@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.startWin = StartUpUI(self)
         self.setCentralWidget(self.startWin)
         self.startWin.loadBtn.clicked.connect(lambda: self.startMazeUI())
-        self.startWin.createBtn.clicked.connect(lambda: self.startWin.create())
+        self.startWin.createBtn.clicked.connect(lambda: self.startWin.createMaze())
         self.show()
 
     def startMazeUI(self, maze_template = None):
@@ -87,6 +87,7 @@ class MainWindow(QMainWindow):
                 
                 #alligns text in label to the center
                 cell.setAlignment(QtCore.Qt.AlignCenter)
+                cell.setFont(FONT1)
 
                 #determines placement and size of label
                 cell.setGeometry(x, y, MAZE_CELL_SIZE, MAZE_CELL_SIZE)

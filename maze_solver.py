@@ -47,8 +47,7 @@ class MazeSolver():
 
         #making sure there is a start and end
         if self.start is None or self.goal is None:
-            raise Exception("needs one start and end cell")
-
+            raise Exception("No start or end point found")
     
     def solve_maze(self, method):
         
@@ -75,7 +74,7 @@ class MazeSolver():
             
             #if frontier is empty, there is no solution
             if frontier.empty():
-                raise Exception("No Solution")
+                raise Exception("No solution")
 
             #remove a node from the frontier
             node = frontier.remove()

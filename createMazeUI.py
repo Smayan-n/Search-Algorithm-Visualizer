@@ -16,8 +16,9 @@ class CreateMazeUI(QWidget):
         self.mainWin = mainWin
         self.maze_template = maze_template
 
-        #variable to store state of mouse left click
+        #variable to store state of mouse  click
         self.leftMouseDown = False
+        self.rightMouseDown = False
 
         #fileDialog    
         self.fileDialog = QFileDialog() 
@@ -51,7 +52,7 @@ class CreateMazeUI(QWidget):
         #creating a 2D array of labels
         #each label acts like a cell/position in the maze
         self.cells = [[QLabel(self) for i in range(self.cols)] for j in range(self.rows)]
-        
+
         #calls method to init UI
         self.mainWin.initMaze(self.cells, maze_template)
 
@@ -69,10 +70,11 @@ class CreateMazeUI(QWidget):
         #gets widget that that cursor is currently hovering over
 
         widget = qApp.widgetAt(QCursor.pos())
-        #widget has to be a QLabel and has to be only a maze cell (not any other label). option also has to be "create"
-        if type(widget) == QLabel: 
-            if (widget.width(), widget.height()) == (MAZE_CELL_SIZE, MAZE_CELL_SIZE):
-            
+        #widget has to be a QLabel and has to be only a maze cell (not any other label).
+        if type(widget) == QLabel:
+            #only maze cells have this size
+            if widget.size() == QSize(MAZE_CELL_SIZE, MAZE_CELL_SIZE):
+                
                 if self.start_btn.isChecked():
                     color = BLUE
                 elif self.goal_btn.isChecked():
@@ -98,13 +100,18 @@ class CreateMazeUI(QWidget):
 
     def mousePressEvent(self, event):   
         if event.button() == Qt.LeftButton:
-            self.updateCell()  
             self.leftMouseDown = True
+        if event.button() == Qt.RightButton:
+            self.rightMouseDown = True
+        
+        self.updateCell()
 
     def mouseReleaseEvent(self, event):    
         if event.button() == Qt.LeftButton: 
             self.leftMouseDown = False
-
+        if event.button() == Qt.RightButton:
+            self.rightMouseDown = False
+        
     #loop function that gets called by loop
     def updateLoop(self):
         if self.leftMouseDown:
@@ -123,12 +130,12 @@ class CreateMazeUI(QWidget):
         self.wall_btn = QRadioButton("Wall", type_widget)
         self.wall_btn.setChecked(True)
         wall_lbl = QLabel(type_widget)
-        wall_lbl.setMinimumWidth(50)
+        wall_lbl.setFixedSize(MAZE_CELL_SIZE -1, MAZE_CELL_SIZE-1)
         wall_lbl.setStyleSheet(STYLE1 + GREY)
 
         self.empty_btn = QRadioButton("Empty", type_widget)
         empty_lbl = QLabel(type_widget)
-        empty_lbl.setMinimumWidth(50)
+        empty_lbl.setFixedSize(MAZE_CELL_SIZE-1, MAZE_CELL_SIZE-1)
         empty_lbl.setStyleSheet(STYLE1 + WHITE)
 
         h_layout1.addWidget(wall_lbl)
@@ -140,7 +147,7 @@ class CreateMazeUI(QWidget):
         h_layout2 = QHBoxLayout()
         self.start_btn = QRadioButton("Start", type_widget)
         start_lbl = QLabel(type_widget)
-        start_lbl.setMaximumWidth(50)
+        start_lbl.setFixedSize(MAZE_CELL_SIZE-1, MAZE_CELL_SIZE-1)
         start_lbl.setStyleSheet(STYLE1 + BLUE)
         h_layout2.addWidget(start_lbl)
         h_layout2.addWidget(self.start_btn)
@@ -154,7 +161,7 @@ class CreateMazeUI(QWidget):
         h_layout3 = QHBoxLayout()
         self.goal_btn = QRadioButton("Goal", type_widget)
         goal_lbl = QLabel(type_widget)
-        goal_lbl.setMaximumWidth(50)
+        goal_lbl.setFixedSize(MAZE_CELL_SIZE-1, MAZE_CELL_SIZE-1)
         goal_lbl.setStyleSheet(STYLE1 + RED)
         h_layout3.addWidget(goal_lbl)
         h_layout3.addWidget(self.goal_btn)
@@ -168,7 +175,7 @@ class CreateMazeUI(QWidget):
         #save and solve button
         btn_widget = QWidget(self)
         btn_widget.setFont(FONT1)
-        btn_widget.move(475, -10)
+        btn_widget.move(550, -10)
         btn_layout = QVBoxLayout(btn_widget)
 
         solve_btn = QPushButton("Solve maze", btn_widget)

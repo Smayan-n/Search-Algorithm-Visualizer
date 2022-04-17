@@ -76,7 +76,8 @@ class SolveMazeUI(QWidget):
             pass
 
         maze_solver = MazeSolver()
-        maze_solver.parse_maze(self.maze_template)
+        #returns output (None = no start or end node). 1 == ok
+        output = maze_solver.parse_maze(self.maze_template)
 
         #returns all the states in the path of the solution
         if self.a_star_btn.isChecked():
@@ -87,7 +88,9 @@ class SolveMazeUI(QWidget):
             method = "Depth First Search"
 
         #Note: The explored states also contain the solution states
+        #func can also return None, None (which means there is no solution)
         self.solution, self.explored = maze_solver.solve_maze(method)
+
 
         #removing last state from solution since it is the goal state
         self.solution.pop()
@@ -98,15 +101,18 @@ class SolveMazeUI(QWidget):
         if self.show_explored_checkBox.isChecked():
             self.display_solution = self.explored
         else:
-            self.display_solution = self.solution   
+            self.display_solution = self.solution
 
         #using user specified speed
         self.solution_loop.start(self.speed_slider.maximum() - self.speed_slider.value())
 
         self.index = 0
+        self.solution_states = 0
+        self.explored_states = 0
 
     #a looped function that is used to illustrate the maze being solved
     def illustrateSolution(self):
+
 
         explored_cell_x, explored_cell_y = self.display_solution[self.index]
 
@@ -115,13 +121,33 @@ class SolveMazeUI(QWidget):
         #settin cell green if it is a solution state and yellow if it is just an explored state
         if (explored_cell_x, explored_cell_y) in self.solution:
             cell.setStyleSheet(STYLE1 + GREEN)
+            self.solution_states += 1
+            self.explored_states += 1
         else:
             cell.setStyleSheet(STYLE1 + YELLOW)
+            self.explored_states += 1
+ 
 
         self.index += 1
         if self.index == len(self.display_solution):
+
+            #displaying the states explored beside each method label
+            if self.a_star_btn.isChecked():
+                self.a_star_btn.setText(f"A* Search ({len(self.explored)})")
+            elif self.bfs_btn.isChecked():
+                self.bfs_btn.setText(f"Breadth First Search ({len(self.explored)}")
+            else:
+                self.dfs_btn.setText(f"Depth First Search ({len(self.explored)}")
+
+            #ending loop and setting explored states to actual
+            self.explored_states = len(self.explored)
             self.index = 0
             self.solution_loop.stop()
+        
+        #updating maze stats
+        self.solution_states_lbl.setText("Solution States: " + str(self.solution_states))
+        self.explored_states_lbl.setText("States Explored: " + str(self.explored_states))  
+        
 
     #UI for maze solving
     def initLoadUI(self):
@@ -129,8 +155,9 @@ class SolveMazeUI(QWidget):
         
         #solving method buttons
         radio_widget = QWidget(self)
-        radio_widget.setFont(FONT1)
+        radio_widget.setMinimumSize(500, MAZE_CTRL_SPACING)
         radio_widget.move(0, -10)
+        radio_widget.setFont(FONT1)
         radio_layout = QVBoxLayout(radio_widget)
 
         self.a_star_btn = QRadioButton("A* Search", radio_widget)
@@ -148,7 +175,8 @@ class SolveMazeUI(QWidget):
 
         #------------------------------------speed slider------------------------------------#
         solve_widget = QWidget(self)
-        solve_widget.move(400, -10)
+        solve_widget.setFont(FONT1)
+        solve_widget.move(440, -10)
         solve_main_layout = QVBoxLayout(solve_widget)
 
         solve_Hlayout = QHBoxLayout()
@@ -159,31 +187,30 @@ class SolveMazeUI(QWidget):
         self.speed_slider.setValue(150)
 
         self.speed_label = QLabel("Speed: " + str(self.speed_slider.value()), self)
-        self.speed_label.setFont(FONT1)
         self.speed_label.setFixedSize(175, 50)
 
         self.speed_slider.valueChanged.connect(lambda: self.speed_label.setText("Speed: " + str(self.speed_slider.value()) + "   "))
 
         #solve button (inside same widget as speed slider)
         solve_btn = QPushButton("Solve maze", self)
-        solve_btn.setMaximumHeight(100)
+        solve_btn.setFont(FONT1)
+        solve_btn.setMaximumHeight(110)
         solve_btn.setStyleSheet("background-color: " + GREEN)
         solve_btn.clicked.connect(self.solveMaze)
-        solve_btn.setFont(FONT1)
 
         #save and edit buttons
         save_edit_Vlayout = QVBoxLayout()
         save_btn = QPushButton("Save maze", self)
-        save_btn.setMaximumHeight(40)
-        save_btn.setStyleSheet("background-color: " + GREEN)
-        save_btn.clicked.connect(lambda: self.mainWin.saveMaze(self.cells))
         save_btn.setFont(FONT1)
+        save_btn.setMaximumHeight(50)
+        save_btn.setStyleSheet("background-color: " + YELLOW)
+        save_btn.clicked.connect(lambda: self.mainWin.saveMaze(self.cells))
 
         edit_btn = QPushButton("Edit maze", self)
-        edit_btn.setMaximumHeight(40)
-        edit_btn.setStyleSheet("background-color: " + GREEN)
-        edit_btn.clicked.connect(lambda: self.mainWin.startCreateUI(maze_template = self.maze_template))
         edit_btn.setFont(FONT1)
+        edit_btn.setMaximumHeight(50)
+        edit_btn.setStyleSheet("background-color: " + ORANGE)
+        edit_btn.clicked.connect(lambda: self.mainWin.startCreateUI(maze_template = self.maze_template))
 
         #main menu button
         # menu_btn = QPushButton("Main menu", self)
@@ -191,6 +218,21 @@ class SolveMazeUI(QWidget):
         # menu_btn.setStyleSheet("background-color: " + GREEN)
         # #menu_btn.clicked.connect(self.initMainMenuUI)
         # menu_btn.setFont(FONT1)
+
+        #maze statistics
+        stats_widget = QWidget(self)
+        stats_widget.setFont(FONT1)
+        stats_widget.move(400, 110)
+        stats_layout = QVBoxLayout(stats_widget)
+
+        self.solution_states_lbl = QLabel("Solution states: 0", stats_widget)
+        self.solution_states_lbl.setMinimumWidth(300)
+
+        self.explored_states_lbl = QLabel("States Explored: 0", stats_widget)
+        self.explored_states_lbl.setMinimumWidth(300)
+
+        stats_layout.addWidget(self.solution_states_lbl)
+        stats_layout.addWidget(self.explored_states_lbl)
 
         save_edit_Vlayout.addWidget(save_btn)
         save_edit_Vlayout.addWidget(edit_btn)
