@@ -1,4 +1,5 @@
-#file to store all global constants
+#file to store all global constants for maze UI app
+
 from PyQt5.QtGui import QFont
 
 FONT1 = QFont("Aerial", 10)

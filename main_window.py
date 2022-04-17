@@ -8,6 +8,7 @@ from PyQt5.QtCore import *
 import sys
 from maze_basic import Maze
 
+from maze_text_to_array_converter import convertTextFile
 from startUpUI import StartUpUI
 from solveMazeUI import SolveMazeUI
 from createMazeUI import CreateMazeUI
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
     def startStartUpUI(self):
         self.startWin = StartUpUI(self)
         self.setCentralWidget(self.startWin)
-        self.startWin.loadBtn.clicked.connect(lambda: self.startMazeUI())
+        self.startWin.loadBtn.clicked.connect(lambda: self.loadMaze())
         self.startWin.createBtn.clicked.connect(lambda: self.startWin.createMaze())
         self.show()
 
@@ -52,6 +53,7 @@ class MainWindow(QMainWindow):
         self.show()
 
     #-------------------------------other helper methods------------------------------------------------#
+        
 
     #resets maze to its original state
     def resetMaze(self, cells, maze_template=None):
@@ -130,15 +132,29 @@ class MainWindow(QMainWindow):
 
         cell.setStyleSheet(STYLE1 + color)
 
+        #prompts user to load file
+    def loadMaze(self):
+        try:
+            #propmpts user to select a file
+            filePath = self.fileDialog.getOpenFileName(self, "Open a maze", "", "Text Files (*.txt)")[0]
+            #parses text file and stores in a 2D array
+            maze_template = convertTextFile(filePath)
+
+            self.startMazeUI(maze_template)
+        except:
+            pass
+
     #spropmpts user to save maze as text file
     def saveMaze(self, maze_cells):
-                
-        self.maze_template = self.parseUIMaze(maze_cells)
+        try:
+            self.maze_template = self.parseUIMaze(maze_cells)
 
-        filePath = self.fileDialog.getSaveFileName(self, "Save Maze", "", "Text files (*.txt)")[0]
-        
-        with open(filePath, "w") as f:
-            f.write(self.maze_template)
+            filePath = self.fileDialog.getSaveFileName(self, "Save Maze", "", "Text files (*.txt)")[0]
+            
+            with open(filePath, "w") as f:
+                f.write(self.maze_template)
+        except:
+            pass
     
     #method that takes the maze UI grid and converts it to a string representation that can be saved in a text file
     def parseUIMaze(self, maze_cells):

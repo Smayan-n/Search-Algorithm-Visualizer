@@ -11,11 +11,11 @@ from constants import *
 
 #main maze UI
 #used for the solve UI
-#it can load mazes from files and also from a template when passed in
+#it can load mazes from files templates passed in
 class SolveMazeUI(QWidget):
     def __init__(self, mainWin=None, maze_template=None):
         super(SolveMazeUI, self).__init__(mainWin)
-
+        
         self.mainWin = mainWin
         self.maze_template = maze_template
 
@@ -26,31 +26,10 @@ class SolveMazeUI(QWidget):
         #fileDialog    
         self.fileDialog = QFileDialog() 
 
-        if self.maze_template is not None:
-            #defines rows and cols in maze
-            self.rows = len(self.maze_template)
-            self.cols = max(len(row) for row in self.maze_template)
-            self.initGame()
-            self.initLoadUI()
-        else:
-            #calling load function 
-            self.loadMaze()
-
-    def loadMaze(self):
-
-        #propmpts user to select a file
-        filePath = self.fileDialog.getOpenFileName(self, "Open a maze", "", "Text Files (*.txt)")[0]
-        #parses text file and stores in a 2D array
-        self.maze_template = convertTextFile(filePath)
-
-        #defines number of rows and columns in the maze
+        #defines rows and cols in maze
         self.rows = len(self.maze_template)
-        #width is taken as longest row
         self.cols = max(len(row) for row in self.maze_template)
-
-        #maze is initialized
         self.initGame()
-        #widgets above maze initialized
         self.initLoadUI()
 
 
@@ -61,7 +40,7 @@ class SolveMazeUI(QWidget):
         #each label acts like a cell/position in the maze
         self.cells = [[QLabel(self) for i in range(self.cols)] for j in range(self.rows)]
         
-        #calls method to init UI
+        #calls method to init Maze UI
         self.mainWin.initMaze(cells=self.cells, maze_template=self.maze_template)
 
     #solves maze
