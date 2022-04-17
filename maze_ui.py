@@ -1,13 +1,24 @@
 #created using PyQt5
+#AUTHOR: Smayan Nirantare
 
 from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys, time
+import sys
+from PyQt5.sip import delete
 
 from maze_text_parser import parseTextFile
 from maze_solver import MazeSolver
+
+#How the multiple UIs work:
+
+    #The MainWindow class is the parent of the QMainWindow class (it is where all the UI's are displayed)
+        #all the widgets are children of the MainWindow class
+    
+        #the StartUpUI and mazeUI classes inherit from QWidget and can have its own UI
+
+        #each of these widget classes have their own UI which can be displayed on the mainWindow
 
 #main parent UI window
 class MainWindow(QMainWindow):
@@ -30,6 +41,7 @@ class MainWindow(QMainWindow):
         #option param to determine if user wants to load or create a maze
         self.mazeWin = MazeUI(self, option, dimentions)
         self.setCentralWidget(self.mazeWin)
+        self.mazeWin.solve_btn.clicked.connect(lambda: self.startMazeUI("load"))
         self.show()
 
 #UI that is displayed at the start of the program
@@ -142,9 +154,8 @@ class StartUpUI(QWidget):
 
 #main maze UI
 class MazeUI(QWidget):
-    def __init__(self, mainWin=None, option=None, dimentions=None):
+    def __init__(self, mainWin=None, option=None, dimentions=None, maze_template = None):
         super(MazeUI, self).__init__(mainWin)
-
 
         self.mainWin = mainWin
         self.option = option
@@ -156,6 +167,9 @@ class MazeUI(QWidget):
         loop.timeout.connect(self.updateLoop)
         loop.start(10)
 
+        #fileDialog    
+        self.fileDialog = QFileDialog() 
+
         #fonts 
         self.font1 = QFont("Aerial", 12)
         self.font2 = QFont("Aerial", 10)
@@ -164,40 +178,23 @@ class MazeUI(QWidget):
         self.BG_COLOR = "rgb(100, 100, 100)"
         self.GREEN = "rgb(0, 200, 0)"
         self.GREY = "rgb(100, 100, 100)"
-        self.RED = "rgb(150, 0, 0)"
-        self.BLUE = "rgb(0, 0, 150)"
+        self.RED = "rgb(200, 0, 0)"
+        self.BLUE = "rgb(0, 0, 200)"
         self.WHITE = "rgb(255, 255, 255)"
-        self.YELLOW = "rgb(200, 200, 0)"
+        self.YELLOW = "rgb(255, 255, 0)"
+
+        #styles
+        self.STYLE1 = "border: 1px solid black; background-color: "
         
+
         #calling load/create function depending on option
         if self.option == "load":
-            self.loadMaze()
-        else:
+            self.loadMaze("LOAD")
+        elif self.option == "create":
             self.createMaze(dimentions)
-    
-    def createMaze(self, dimentions):
-
-        self.rows, self.cols = dimentions
-        self.initGame()
-        self.initCreateUI()
-
-    def loadMaze(self):
-
-        #prompts user to select a file
-        fileDialog = QFileDialog() 
-        filePath = fileDialog.getOpenFileName()[0]
-
-        #parses text file and stores in a 2D array
-        self.maze_template = parseTextFile(filePath)
-        #defines number of rows and columns in the maze
-        self.rows = len(self.maze_template)
-        #width is taken as longest row
-        self.cols = max(len(row) for row in self.maze_template)
-
-        #maze is initialized
-        self.initGame()
-        #widgets above maze initialized
-        self.initLoadUI()
+        elif self.option == "solve":
+            self.maze_template = maze_template
+            self.loadMaze("DIRECT")
 
 
     #function to init variables 
@@ -249,7 +246,7 @@ class MazeUI(QWidget):
                 if self.option == "load":
                     self.loadMazeStyle(cell, row, col)  
                 else:
-                    cell.setStyleSheet("border: 1px solid rgb(0, 0, 0); background-color: white")   
+                    cell.setStyleSheet(self.STYLE1 + self.WHITE)   
 
             x = 0
             y += self.cell_size
@@ -281,7 +278,27 @@ class MazeUI(QWidget):
             #for rows that are shorter that the rest, they are assumed to be clear cells
             color = self.WHITE
 
-        cell.setStyleSheet("border: 1px solid rgb(0, 0, 0); background-color: " + color)   
+        cell.setStyleSheet(self.STYLE1 + color)   
+    
+    def loadMaze(self, _from = "FILE"):
+        #if _from is FILE, then the user will be prompted to select a file
+        #otherwise we know that the template was passed into the class
+
+        if _from == "FILE":
+            #propmpts user to select a file
+            filePath = self.fileDialog.getOpenFileName(self, "Open a maze", "", "Text Files (*.txt)")[0]
+            #parses text file and stores in a 2D array
+            self.maze_template = parseTextFile(filePath)
+
+        #defines number of rows and columns in the maze
+        self.rows = len(self.maze_template)
+        #width is taken as longest row
+        self.cols = max(len(row) for row in self.maze_template)
+
+        #maze is initialized
+        self.initGame()
+        #widgets above maze initialized
+        self.initLoadUI()
 
     #UI for maze solving
     def initLoadUI(self):
@@ -330,11 +347,79 @@ class MazeUI(QWidget):
         speed_layout.addWidget(self.speed_slider)
 
         #button to solve maze
-        solve_btn = QPushButton("Solve maze", self)
-        solve_btn.setGeometry(800, 80, 200, 80)
-        solve_btn.setStyleSheet("background-color: " + self.GREEN)
-        solve_btn.clicked.connect(self.solveMaze)
-        solve_btn.setFont(self.font2)
+        self.solve_btn = QPushButton("Solve maze", self)
+        self.solve_btn.setGeometry(800, 80, 200, 80)
+        self.solve_btn.setStyleSheet("background-color: " + self.GREEN)
+        self.solve_btn.clicked.connect(self.solveMaze)
+        self.solve_btn.setFont(self.font2)
+
+    #solves maze
+    def solveMaze(self):
+
+        #resetting maze to it's unsolved state
+        self.initMaze()
+        #this block ensures that the user spamming the solvr button will not have any unintended consequences
+        try:
+            self.loop2.stop()
+        except:
+            pass
+
+        maze_solver = MazeSolver()
+        maze_solver.parse_maze(self.maze_template)
+
+        #returns all the states in the path of the solution
+        if self.a_star_btn.isChecked():
+            method = "A* Search"
+        elif self.bfs_btn.isChecked():
+            method = "Breadth First Search"
+        else:
+            method = "Depth First Search"
+
+        #Note: The explored states also contain the solution states
+        self.solution, self.explored = maze_solver.solve_maze(method)
+
+        #removing last state from solution since it is the goal state
+        self.solution.pop()
+        #removing first state from explored since it is the start state
+        self.explored.pop(0)
+
+        #display_solution will contain all the states that need to be displayed(explored and/or solution states)
+        if self.show_explored_checkBox.isChecked():
+            self.display_solution = self.explored
+        else:
+            self.display_solution = self.solution   
+
+        #creating a loop/timer so the illustrate function can be called at regular intervals
+        self.loop2 = QTimer(self)
+        self.loop2.timeout.connect(self.illustrateSolution)
+        self.loop2.start(self.speed_slider.value())#using user specified speed
+
+        self.index = 0
+
+    #a looped function that is used to illustrate the maze being solved
+    def illustrateSolution(self):
+
+        explored_cell_x, explored_cell_y = self.display_solution[self.index]
+
+        #finding the cell that corresponds to the explored state in display_solution
+        cell = self.cells[explored_cell_x][explored_cell_y]
+        #settin cell green if it is a solution state and yellow if it is just an explored state
+        if (explored_cell_x, explored_cell_y) in self.solution:
+            cell.setStyleSheet(self.STYLE1 + self.GREEN)
+        else:
+            cell.setStyleSheet(self.STYLE1 + self.YELLOW)
+
+        self.index += 1
+        if self.index == len(self.display_solution):
+            self.index = 0
+            self.loop2.stop()
+
+
+    def createMaze(self, dimentions):
+
+        self.rows, self.cols = dimentions
+        self.initGame()
+        self.initCreateUI()
 
     #UI for maze creation
     def initCreateUI(self):
@@ -390,78 +475,47 @@ class MazeUI(QWidget):
         save_btn.clicked.connect(self.saveMaze)
         save_btn.setMinimumSize(100, 50)
 
-        solve_btn = QPushButton("Solve", btn_widget)
-        solve_btn.clicked.connect(self.saveMaze)
+        self.solve_btn = QPushButton("Solve", btn_widget)
+        self.solve_btn.clicked.connect(self.preSolve)
         save_btn.setMinimumSize(100, 50)
 
         btn_layout.addWidget(save_btn)
-        btn_layout.addWidget(solve_btn)
+        btn_layout.addWidget(self.solve_btn)
+
+    def parseUIMaze(self):
+        #parsing the maze from the UI into a string
+        string_maze_template = ""
+        for r in self.cells:
+            row = ""
+            for cell in r:
+                if cell.styleSheet() == self.STYLE1 + self.GREY:
+                    row += "#"
+                elif cell.styleSheet() == self.STYLE1 + self.BLUE:
+                    row += "A"
+                elif cell.styleSheet() == self.STYLE1 + self.RED:
+                    row += "B"
+                else:
+                    row += " "
+            
+            string_maze_template += row + "\n"
+
+        return string_maze_template
+
+    def preSolve(self):
+
+        self.maze_template = self.parseUIMaze()
+        mazeWin = MazeUI(mainWin=self.mainWin, option="solve", maze_template = self.maze_template)
+        self.mainWin.setCentralWidget(mazeWin)
+        self.mainWin.show()
 
     def saveMaze(self):
+        
+        self.maze_template = self.parseUIMaze()
 
-        pass
-
-    #solves maze
-    def solveMaze(self):
-
-        #resetting maze to it's unsolved state
-        self.initMaze()
-        #this block ensures that the user spamming the solvr button will not have any unintended consequences
-        try:
-            self.loop2.stop()
-        except:
-            pass
-
-        maze_solver = MazeSolver()
-        maze_solver.parse_maze(self.maze_template)
-
-        #returns all the states in the path of the solution
-        if self.a_star_btn.isChecked():
-            method = "A* Search"
-        elif self.bfs_btn.isChecked():
-            method = "Breadth First Search"
-        else:
-            method = "Depth First Search"
-
-        #NOTE: The explored states also contain the solution states
-        self.solution, self.explored = maze_solver.solve_maze(method)
-
-        #removing last state from solution since it is the goal state
-        self.solution.pop()
-        #removing first state from explored since it is the start state
-        self.explored.pop(0)
-
-        #display_solution will contain all the states that need to be displayed(explored and/or solution states)
-        if self.show_explored_checkBox.isChecked():
-            self.display_solution = self.explored
-        else:
-            self.display_solution = self.solution   
-
-        #creating a loop/timer so the illustrate function can be called at regular intervals
-        self.loop2 = QTimer(self)
-        self.loop2.timeout.connect(self.illustrateSolve)
-        #using user specified speed
-        self.loop2.start(self.speed_slider.value())
-
-        self.index = 0
-
-    #a looped function that is used to illustrate the maze being solved
-    def illustrateSolve(self):
-
-        explored_cell_x, explored_cell_y = self.display_solution[self.index]
-
-        #finding the cell that corresponds to the explored state in display_solution
-        cell = self.cells[explored_cell_x][explored_cell_y]
-        #settin cell green if it is a solution state and yellow if it is just an explored state
-        if (explored_cell_x, explored_cell_y) in self.solution:
-            cell.setStyleSheet("border: 1px solid rgb(0, 0, 0); background-color: " + self.GREEN)
-        else:
-            cell.setStyleSheet("border: 1px solid rgb(0, 0, 0); background-color: " + self.YELLOW)
-
-        self.index += 1
-        if self.index == len(self.display_solution):
-            self.index = 0
-            self.loop2.stop()
+        filePath = self.fileDialog.getSaveFileName(self, "Save Maze", "", "Text files (*.txt)")[0]
+        
+        with open(filePath, "w") as f:
+            f.write(self.maze_template)
 
 
     #called when mouse is clicked
@@ -469,8 +523,8 @@ class MazeUI(QWidget):
         #gets widget that that cursor is currently hovering over
 
         widget = qApp.widgetAt(QCursor.pos())
-        #widget has to be a QLabel and has to be only a maze cell (not any other label)
-        if type(widget) == QLabel and (widget.width(), widget.height()) == (self.cell_size, self.cell_size):
+        #widget has to be a QLabel and has to be only a maze cell (not any other label). option also has to be "create"
+        if type(widget) == QLabel and (widget.width(), widget.height()) == (self.cell_size, self.cell_size) and self.option == "create":
             
             if self.start_btn.isChecked():
                 color = self.BLUE
@@ -481,7 +535,7 @@ class MazeUI(QWidget):
             else:
                 color = self.GREY
             
-            widget.setStyleSheet("border: 1px solid black; background-color: " + color)
+            widget.setStyleSheet(self.STYLE1 + color)
 
     def mousePressEvent(self, event):   
         if event.button() == Qt.LeftButton:
