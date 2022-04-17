@@ -1,7 +1,7 @@
 #created using PyQt5
 #AUTHOR: Smayan Nirantare
 
-from PyQt5 import QtCore, uic
+from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *

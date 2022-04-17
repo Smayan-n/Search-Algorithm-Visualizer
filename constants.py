@@ -1,0 +1,18 @@
+#file to store all global constants
+from PyQt5.QtGui import QFont
+
+FONT1 = QFont("Aerial", 10)
+FONT2 = QFont("Aerial", 12)
+FONT3 = QFont("Aerial", 15)
+
+#colors
+BG_COLOR = "rgb(100, 100, 100)"
+GREEN = "rgb(0, 200, 0)"
+GREY = "rgb(100, 100, 100)"
+RED = "rgb(200, 0, 0)"
+BLUE = "rgb(0, 0, 200)"
+WHITE = "rgb(255, 255, 255)"
+YELLOW = "rgb(255, 255, 0)"
+
+#styles
+STYLE1 = "border: 1px solid black; background-color: "
