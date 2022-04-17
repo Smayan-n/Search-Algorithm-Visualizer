@@ -13,6 +13,16 @@ RED = "rgb(200, 0, 0)"
 BLUE = "rgb(0, 0, 200)"
 WHITE = "rgb(255, 255, 255)"
 YELLOW = "rgb(255, 255, 0)"
+ORANGE = "rgb(200, 100, 0)"
 
 #styles
 STYLE1 = "border: 1px solid black; background-color: "
+
+#maze constants
+
+#dimention of each cell in the maze
+MAZE_CELL_SIZE = 60
+#space for buttons and controls above the maze
+MAZE_CTRL_SPACING = 250
+
+MIN_WIN_WIDTH = 1250

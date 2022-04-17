@@ -51,7 +51,7 @@ class StartUpUI(QWidget):
 
     #displays a prompt to enter maze dimensions
     def create(self):
-        #the initializing of the widgets ibly happens on the first click of the create maze button
+        #the initializing of the widgets only happens on the first click of the create maze button
         if self.firstClick:
 
             create_lbl = QLabel("Enter Maze Dimentions: ")

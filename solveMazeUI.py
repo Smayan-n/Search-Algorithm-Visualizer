@@ -1,19 +1,27 @@
+from turtle import speed
 from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from numpy import save
 
 from maze_text_to_array_converter import convertTextFile
 from maze_solver import MazeSolver
 from constants import *
 
 #main maze UI
+#used for the solve UI
+#it can load mazes from files and also from a template when passed in
 class SolveMazeUI(QWidget):
     def __init__(self, mainWin=None, maze_template=None):
         super(SolveMazeUI, self).__init__(mainWin)
 
         self.mainWin = mainWin
         self.maze_template = maze_template
+
+        #creating a loop/timer so the illustrate the solution being solved
+        self.solution_loop = QTimer(self)
+        self.solution_loop.timeout.connect(self.illustrateSolution)
 
         #fileDialog    
         self.fileDialog = QFileDialog() 
@@ -54,135 +62,16 @@ class SolveMazeUI(QWidget):
         self.cells = [[QLabel(self) for i in range(self.cols)] for j in range(self.rows)]
         
         #calls method to init UI
-        self.initMaze()
-
-    #initialization of maze grid
-    def initMaze(self):
-
-        #dimention of each square cell
-        self.cell_size = 60
-
-        #space for buttons and controls above the maze
-        self.ctrl_spacing = 200
-
-        #sets self.cell_size of window. The ability to be resized is restricted
-        win_width = self.cols * self.cell_size
-        win_height = self.rows * self.cell_size + self.ctrl_spacing
-
-        #width has to have a minimum size
-        win_width = max(win_width, 1200)
-
-        self.mainWin.setFixedSize(win_width, win_height)
-
-        #loops through cells and displays them
-        x = 0
-        y = self.ctrl_spacing
-        for row in range(self.rows):
-            for col in range(self.cols):
-                cell = self.cells[row][col]
-                
-                #alligns text in label to the center
-                cell.setAlignment(QtCore.Qt.AlignCenter)
-
-                #determines placement and size of label
-                cell.setGeometry(x, y, self.cell_size, self.cell_size)
-                x += self.cell_size
-
-                self.loadMazeStyle(cell, row, col)  #sets style of cell
-
-            x = 0
-            y += self.cell_size
-    
-    #sets style for label depending on contents of maze_template
-    #color key:
-    #white = empty cell, green = path, blue = end, grey = wall, red = goal
-    def loadMazeStyle(self, cell, row, col):
-
-        color = WHITE
-        try:
-            cellState = self.maze_template[row][col]
-            
-            if cellState == 'A':
-                color = BLUE
-                
-            elif cellState == 'B':
-                color = RED
-            
-            if cellState == ' ':
-                color = WHITE
-                
-            elif cellState == '#':
-                #wall exists
-                color = GREY
-            
-        except IndexError:
-            #for rows that are shorter that the rest, they are assumed to be clear cells
-            color = WHITE
-
-        cell.setStyleSheet(STYLE1 + color)   
-
-
-    #UI for maze solving
-    def initLoadUI(self):
-        #widgets above the maze grid
-        
-        #solving method buttons
-        radio_widget = QWidget(self)
-        radio_widget.setFont(FONT1)
-        radio_widget.move(0, -10)
-        radio_layout = QVBoxLayout(radio_widget)
-
-        self.a_star_btn = QRadioButton("A* Search", radio_widget)
-        self.a_star_btn.setChecked(True)
-        self.bfs_btn = QRadioButton("Breadth First Fearch", radio_widget)
-        self.dfs_btn = QRadioButton("Depth First Fearch", radio_widget)
-
-        radio_layout.addWidget(self.a_star_btn)
-        radio_layout.addWidget(self.bfs_btn)
-        radio_layout.addWidget(self.dfs_btn)
-       
-        #checkbox to toggle between showing only solution and explored states as well
-        check_box_widget = QWidget(self)
-        check_box_widget.setFont(FONT1)
-        check_box_widget.move(350, -10)
-        check_box_layout = QHBoxLayout(check_box_widget)
-        self.show_explored_checkBox = QCheckBox("Show explored states", check_box_widget)
-        check_box_layout.addWidget(self.show_explored_checkBox)
-
-        #speed slider
-        speed_widget = QWidget(self)
-        speed_widget.move(750, -10)
-        speed_layout = QHBoxLayout(speed_widget)
-        self.speed_slider = QSlider(Qt.Horizontal, self)
-        self.speed_slider.setFixedSize(200, 50)
-        self.speed_slider.setMinimum(10)
-        self.speed_slider.setMaximum(200)
-        self.speed_slider.setValue(50)
-
-        self.speed_label = QLabel("Speed: " + str(self.speed_slider.value()), self)
-        self.speed_label.setFont(FONT1)
-        self.speed_label.setFixedSize(175, 50)
-
-        self.speed_slider.valueChanged.connect(lambda: self.speed_label.setText("Speed: " + str(self.speed_slider.value()) + "   "))
-
-        speed_layout.addWidget(self.speed_label)
-        speed_layout.addWidget(self.speed_slider)
-
-        #button to solve maze
-        self.solve_btn = QPushButton("Solve maze", self)
-        self.solve_btn.setGeometry(800, 80, 200, 80)
-        self.solve_btn.setStyleSheet("background-color: " + GREEN)
-        self.solve_btn.clicked.connect(self.solveMaze)
-        self.solve_btn.setFont(FONT1)
+        self.mainWin.initMaze(cells=self.cells, maze_template=self.maze_template)
 
     #solves maze
     def solveMaze(self):
 
         #resetting maze to it's unsolved state
-        self.initMaze()
+        self.mainWin.resetMaze(self.cells, self.maze_template)
         #this block ensures that the user spamming the solvr button will not have any unintended consequences
         try:
-            self.loop2.stop()
+            self.solution_loop.stop()
         except:
             pass
 
@@ -211,10 +100,8 @@ class SolveMazeUI(QWidget):
         else:
             self.display_solution = self.solution   
 
-        #creating a loop/timer so the illustrate function can be called at regular intervals
-        self.loop2 = QTimer(self)
-        self.loop2.timeout.connect(self.illustrateSolution)
-        self.loop2.start(self.speed_slider.value())#using user specified speed
+        #using user specified speed
+        self.solution_loop.start(self.speed_slider.maximum() - self.speed_slider.value())
 
         self.index = 0
 
@@ -234,4 +121,83 @@ class SolveMazeUI(QWidget):
         self.index += 1
         if self.index == len(self.display_solution):
             self.index = 0
-            self.loop2.stop()
+            self.solution_loop.stop()
+
+    #UI for maze solving
+    def initLoadUI(self):
+        #widgets above the maze grid
+        
+        #solving method buttons
+        radio_widget = QWidget(self)
+        radio_widget.setFont(FONT1)
+        radio_widget.move(0, -10)
+        radio_layout = QVBoxLayout(radio_widget)
+
+        self.a_star_btn = QRadioButton("A* Search", radio_widget)
+        self.a_star_btn.setChecked(True)
+        self.bfs_btn = QRadioButton("Breadth First Search", radio_widget)
+        self.dfs_btn = QRadioButton("Depth First Search", radio_widget)
+
+        #checkbox for explored states
+        self.show_explored_checkBox = QCheckBox("Show explored states", radio_widget)
+
+        radio_layout.addWidget(self.a_star_btn)
+        radio_layout.addWidget(self.bfs_btn)
+        radio_layout.addWidget(self.dfs_btn)       
+        radio_layout.addWidget(self.show_explored_checkBox)
+
+        #------------------------------------speed slider------------------------------------#
+        solve_widget = QWidget(self)
+        solve_widget.move(400, -10)
+        solve_main_layout = QVBoxLayout(solve_widget)
+
+        solve_Hlayout = QHBoxLayout()
+        self.speed_slider = QSlider(Qt.Horizontal, self)
+        self.speed_slider.setFixedSize(200, 50)
+        self.speed_slider.setMinimum(10)
+        self.speed_slider.setMaximum(200)
+        self.speed_slider.setValue(150)
+
+        self.speed_label = QLabel("Speed: " + str(self.speed_slider.value()), self)
+        self.speed_label.setFont(FONT1)
+        self.speed_label.setFixedSize(175, 50)
+
+        self.speed_slider.valueChanged.connect(lambda: self.speed_label.setText("Speed: " + str(self.speed_slider.value()) + "   "))
+
+        #solve button (inside same widget as speed slider)
+        solve_btn = QPushButton("Solve maze", self)
+        solve_btn.setMaximumHeight(100)
+        solve_btn.setStyleSheet("background-color: " + GREEN)
+        solve_btn.clicked.connect(self.solveMaze)
+        solve_btn.setFont(FONT1)
+
+        #save and edit buttons
+        save_edit_Vlayout = QVBoxLayout()
+        save_btn = QPushButton("Save maze", self)
+        save_btn.setMaximumHeight(40)
+        save_btn.setStyleSheet("background-color: " + GREEN)
+        save_btn.clicked.connect(lambda: self.mainWin.saveMaze(self.cells))
+        save_btn.setFont(FONT1)
+
+        edit_btn = QPushButton("Edit maze", self)
+        edit_btn.setMaximumHeight(40)
+        edit_btn.setStyleSheet("background-color: " + GREEN)
+        edit_btn.clicked.connect(lambda: self.mainWin.startCreateUI(maze_template = self.maze_template))
+        edit_btn.setFont(FONT1)
+
+        #main menu button
+        # menu_btn = QPushButton("Main menu", self)
+        # menu_btn.setMinimumHeight(40)
+        # menu_btn.setStyleSheet("background-color: " + GREEN)
+        # #menu_btn.clicked.connect(self.initMainMenuUI)
+        # menu_btn.setFont(FONT1)
+
+        save_edit_Vlayout.addWidget(save_btn)
+        save_edit_Vlayout.addWidget(edit_btn)
+
+        solve_Hlayout.addWidget(self.speed_label)
+        solve_Hlayout.addWidget(self.speed_slider)
+        solve_Hlayout.addWidget(solve_btn)
+        solve_Hlayout.addLayout(save_edit_Vlayout)
+
+        solve_main_layout.addLayout(solve_Hlayout)
