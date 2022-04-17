@@ -1,6 +1,6 @@
 from Frontiers import StackFrontier, QueueFrontier
 from Node import Node
-from maze_text_parser import parseTextFile
+from maze_text_to_array_converter import convertTextFile
 
 #using bare DFS and BFS
 
@@ -160,7 +160,7 @@ class Maze:
 def main():
     
      #pasing in file to be parsed
-    mazeTemplate = parseTextFile("mazes/maze5.txt")
+    mazeTemplate = convertTextFile("mazes/maze5.txt")
     #maze object
     maze = Maze(mazeTemplate)
 

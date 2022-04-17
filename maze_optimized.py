@@ -1,6 +1,6 @@
 from Frontiers import StackFrontier
 from Node import Node
-from maze_text_parser import parseTextFile
+from maze_text_to_array_converter import convertTextFile
 import time
 #uses A* search
 #calculates the most optimal path, but explores more states as a result
@@ -157,7 +157,7 @@ class Maze:
 def main():
 
     #pasing in file to be parsed
-    mazeTemplate = parseTextFile("mazes/maze6.txt")
+    mazeTemplate = convertTextFile("mazes/maze6.txt")
     #maze object
     maze = Maze(mazeTemplate)
 
