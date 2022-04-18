@@ -106,7 +106,7 @@ class SolveMazeUI(QWidget):
 
         #finding the cell that corresponds to the explored state in display_solution
         cell = self.cells[explored_cell_x][explored_cell_y]
-        #settin cell green if it is a solution state and yellow if it is just an explored state
+        #setting cell green if it is a solution state and yellow if it is just an explored state
         if (explored_cell_x, explored_cell_y) in self.solution:
             cell.setStyleSheet(STYLE1 + GREEN)
             self.solution_states += 1
@@ -174,7 +174,7 @@ class SolveMazeUI(QWidget):
         #solve button (inside same widget as speed slider)
         solve_btn = QPushButton("Solve maze", self)
         solve_btn.setFont(FONT1)
-        solve_btn.setMaximumHeight(110)
+        solve_btn.setMaximumHeight(130)
         solve_btn.setStyleSheet("background-color: " + GREEN)
         solve_btn.clicked.connect(self.solveMaze)
 
@@ -182,19 +182,19 @@ class SolveMazeUI(QWidget):
         save_edit_Vlayout = QVBoxLayout()
         save_btn = QPushButton("Save maze", self)
         save_btn.setFont(FONT1)
-        save_btn.setMaximumHeight(50)
+        save_btn.setMaximumHeight(60)
         save_btn.setStyleSheet("background-color: " + ORANGE + "; color: " + WHITE)
         save_btn.clicked.connect(lambda: self.mainWin.saveMaze(self.cells))
 
         edit_btn = QPushButton("Edit maze", self)
         edit_btn.setFont(FONT1)
-        edit_btn.setMaximumHeight(50)
+        edit_btn.setMaximumHeight(60)
         edit_btn.setStyleSheet("background-color: " + YELLOW)
         edit_btn.clicked.connect(lambda: self.mainWin.startCreateUI(maze_template = self.maze_template))
 
         #main menu button
         menu_btn = QPushButton("New maze", self)
-        menu_btn.setMinimumHeight(100)
+        menu_btn.setMinimumHeight(85)
         menu_btn.setStyleSheet("background-color: " + BLUE + "; color: " + WHITE)
         menu_btn.clicked.connect(lambda: self.mainWin.startStartUpUI())
         menu_btn.setFont(FONT1)
@@ -206,10 +206,10 @@ class SolveMazeUI(QWidget):
         stats_layout = QVBoxLayout(stats_widget)
 
         self.solution_states_lbl = QLabel("Solution States: 0", stats_widget)
-        self.solution_states_lbl.setMinimumWidth(300)
+        self.solution_states_lbl.setMinimumWidth(350)
 
         self.explored_states_lbl = QLabel("States Explored: 0", stats_widget)
-        self.explored_states_lbl.setMinimumWidth(300)
+        self.explored_states_lbl.setMinimumWidth(350)
 
         solve_Vlayout = QVBoxLayout()
         spacer_Hlayout = QHBoxLayout()

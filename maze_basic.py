@@ -160,7 +160,7 @@ class Maze:
 def main():
     
      #pasing in file to be parsed
-    mazeTemplate = convertTextFile("mazes/maze5.txt")
+    mazeTemplate = convertTextFile("mazes/maze8.txt")
     #maze object
     maze = Maze(mazeTemplate)
 
