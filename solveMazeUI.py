@@ -48,17 +48,13 @@ class SolveMazeUI(QWidget):
 
         #resetting maze to it's unsolved state
         self.mainWin.resetMaze(self.cells, self.maze_template)
-        #this block ensures that the user spamming the solvr button will not have any unintended consequences
+        #this block ensures that the user spamming the solve button will not have any unintended consequences
         try:
             self.solution_loop.stop()
         except:
             pass
-
-        maze_solver = MazeSolver()
-        #returns output (None = no start or end node). 1 == ok
-        output = maze_solver.parse_maze(self.maze_template)
-
-        #returns all the states in the path of the solution
+        
+        #getting method to be used
         if self.a_star_btn.isChecked():
             method = "A* Search"
         elif self.bfs_btn.isChecked():
@@ -66,32 +62,45 @@ class SolveMazeUI(QWidget):
         else:
             method = "Depth First Search"
 
-        #Note: The explored states also contain the solution states
-        #func can also return None, None (which means there is no solution)
-        self.solution, self.explored = maze_solver.solve_maze(method)
+
+        maze_solver = MazeSolver()
+        #returns output (None = no start or end node). 1 == ok
+        output = maze_solver.parse_maze(self.maze_template)
+
+        if output is not None:
+            #Note: The explored states also contain the solution states
+            #func can also return None, None (which means there is no solution)
+            self.solution, self.explored = maze_solver.solve_maze(method)
 
 
-        #removing last state from solution since it is the goal state
-        self.solution.pop()
-        #removing first state from explored since it is the start state
-        self.explored.pop(0)
+        try:
+            #removing last state from solution since it is the goal state
+            self.solution.pop()
+            #removing first state from explored since it is the start state
+            self.explored.pop(0)
 
-        #display_solution will contain all the states that need to be displayed(explored and/or solution states)
-        if self.show_explored_checkBox.isChecked():
-            self.display_solution = self.explored
-        else:
-            self.display_solution = self.solution
+            #display_solution will contain all the states that need to be displayed(explored and/or solution states)
+            if self.show_explored_checkBox.isChecked():
+                self.display_solution = self.explored
+            else:
+                self.display_solution = self.solution
 
-        #using user specified speed
-        self.solution_loop.start(self.speed_slider.maximum() - self.speed_slider.value())
+            #using user specified speed
+            self.solution_loop.start(self.speed_slider.maximum() - self.speed_slider.value())
 
-        self.index = 0
-        self.solution_states = 0
-        self.explored_states = 0
+            self.index = 0
+            self.solution_states = 0
+            self.explored_states = 0
+
+        #if there is no solution or the starting/ending node is not in the maze
+        except:
+            if output is None:
+                self.mainWin.showWarning("No start/end node in maze")
+            else:
+                self.mainWin.showWarning("This maze has no solution")
 
     #a looped function that is used to illustrate the maze being solved
     def illustrateSolution(self):
-
 
         explored_cell_x, explored_cell_y = self.display_solution[self.index]
 
@@ -110,14 +119,6 @@ class SolveMazeUI(QWidget):
         self.index += 1
         if self.index == len(self.display_solution):
 
-            #displaying the states explored beside each method label
-            if self.a_star_btn.isChecked():
-                self.a_star_btn.setText(f"A* Search ({len(self.explored)})")
-            elif self.bfs_btn.isChecked():
-                self.bfs_btn.setText(f"Breadth First Search ({len(self.explored)}")
-            else:
-                self.dfs_btn.setText(f"Depth First Search ({len(self.explored)}")
-
             #ending loop and setting explored states to actual
             self.explored_states = len(self.explored)
             self.index = 0
@@ -134,15 +135,15 @@ class SolveMazeUI(QWidget):
         
         #solving method buttons
         radio_widget = QWidget(self)
-        radio_widget.setMinimumSize(500, MAZE_CTRL_SPACING)
+        radio_widget.setMinimumSize(550, MAZE_CTRL_SPACING)
         radio_widget.move(0, -10)
         radio_widget.setFont(FONT1)
         radio_layout = QVBoxLayout(radio_widget)
 
-        self.a_star_btn = QRadioButton("A* Search", radio_widget)
+        self.a_star_btn = QRadioButton("A* Search    ", radio_widget)
         self.a_star_btn.setChecked(True)
-        self.bfs_btn = QRadioButton("Breadth First Search", radio_widget)
-        self.dfs_btn = QRadioButton("Depth First Search", radio_widget)
+        self.bfs_btn = QRadioButton("Breadth First Search    ", radio_widget)
+        self.dfs_btn = QRadioButton("Depth First Search    ", radio_widget)
 
         #checkbox for explored states
         self.show_explored_checkBox = QCheckBox("Show explored states", radio_widget)
@@ -152,10 +153,10 @@ class SolveMazeUI(QWidget):
         radio_layout.addWidget(self.dfs_btn)       
         radio_layout.addWidget(self.show_explored_checkBox)
 
-        #------------------------------------speed slider------------------------------------#
+        #------------------------------------solve layout------------------------------------#
         solve_widget = QWidget(self)
         solve_widget.setFont(FONT1)
-        solve_widget.move(440, -10)
+        solve_widget.move(400, -10)
         solve_main_layout = QVBoxLayout(solve_widget)
 
         solve_Hlayout = QHBoxLayout()
@@ -182,33 +183,36 @@ class SolveMazeUI(QWidget):
         save_btn = QPushButton("Save maze", self)
         save_btn.setFont(FONT1)
         save_btn.setMaximumHeight(50)
-        save_btn.setStyleSheet("background-color: " + YELLOW)
+        save_btn.setStyleSheet("background-color: " + ORANGE + "; color: " + WHITE)
         save_btn.clicked.connect(lambda: self.mainWin.saveMaze(self.cells))
 
         edit_btn = QPushButton("Edit maze", self)
         edit_btn.setFont(FONT1)
         edit_btn.setMaximumHeight(50)
-        edit_btn.setStyleSheet("background-color: " + ORANGE)
+        edit_btn.setStyleSheet("background-color: " + YELLOW)
         edit_btn.clicked.connect(lambda: self.mainWin.startCreateUI(maze_template = self.maze_template))
 
         #main menu button
-        # menu_btn = QPushButton("Main menu", self)
-        # menu_btn.setMinimumHeight(40)
-        # menu_btn.setStyleSheet("background-color: " + GREEN)
-        # #menu_btn.clicked.connect(self.initMainMenuUI)
-        # menu_btn.setFont(FONT1)
+        menu_btn = QPushButton("New maze", self)
+        menu_btn.setMinimumHeight(100)
+        menu_btn.setStyleSheet("background-color: " + BLUE + "; color: " + WHITE)
+        menu_btn.clicked.connect(lambda: self.mainWin.startStartUpUI())
+        menu_btn.setFont(FONT1)
 
         #maze statistics
         stats_widget = QWidget(self)
         stats_widget.setFont(FONT1)
-        stats_widget.move(400, 110)
+        stats_widget.move(400, 115)
         stats_layout = QVBoxLayout(stats_widget)
 
-        self.solution_states_lbl = QLabel("Solution states: 0", stats_widget)
+        self.solution_states_lbl = QLabel("Solution States: 0", stats_widget)
         self.solution_states_lbl.setMinimumWidth(300)
 
         self.explored_states_lbl = QLabel("States Explored: 0", stats_widget)
         self.explored_states_lbl.setMinimumWidth(300)
+
+        solve_Vlayout = QVBoxLayout()
+        spacer_Hlayout = QHBoxLayout()
 
         stats_layout.addWidget(self.solution_states_lbl)
         stats_layout.addWidget(self.explored_states_lbl)
@@ -221,4 +225,9 @@ class SolveMazeUI(QWidget):
         solve_Hlayout.addWidget(solve_btn)
         solve_Hlayout.addLayout(save_edit_Vlayout)
 
-        solve_main_layout.addLayout(solve_Hlayout)
+        solve_Vlayout.addLayout(solve_Hlayout)
+        spacer_Hlayout.addSpacing(405)
+        spacer_Hlayout.addWidget(menu_btn)
+        solve_Vlayout.addLayout(spacer_Hlayout)
+
+        solve_main_layout.addLayout(solve_Vlayout)

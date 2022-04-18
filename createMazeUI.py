@@ -2,6 +2,7 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from cv2 import solve
 from numpy import save
 
 from maze_text_to_array_converter import ConvertString
@@ -155,7 +156,7 @@ class CreateMazeUI(QWidget):
         #clear button
         clear_btn = QPushButton("Clear", type_widget)
         clear_btn.clicked.connect(lambda: self.mainWin.resetMaze(self.cells))
-        clear_btn.setStyleSheet("background-color: " + ORANGE + "; color: " + WHITE)
+        clear_btn.setStyleSheet("background-color: " + YELLOW)
         h_layout2.addWidget(clear_btn)
 
         h_layout3 = QHBoxLayout()
@@ -172,11 +173,12 @@ class CreateMazeUI(QWidget):
         type_layout.addSpacing(10)
         type_layout.addLayout(h_layout3)
 
-        #save and solve button
+        #buttons
         btn_widget = QWidget(self)
         btn_widget.setFont(FONT1)
-        btn_widget.move(550, -10)
-        btn_layout = QVBoxLayout(btn_widget)
+        btn_widget.move(530, -10)
+        btn_Vlayout = QVBoxLayout(btn_widget)
+        btn_Hlayout = QHBoxLayout()
 
         solve_btn = QPushButton("Solve maze", btn_widget)
         solve_btn.setStyleSheet("background-color: " + GREEN)
@@ -185,11 +187,19 @@ class CreateMazeUI(QWidget):
         solve_btn.setMinimumHeight(100)
 
         save_btn = QPushButton("Save maze", btn_widget)
-        save_btn.setStyleSheet("background-color: " + GREEN)
+        save_btn.setStyleSheet("background-color: " + ORANGE + "; color: " + WHITE)
         save_btn.setFont(FONT1)
         save_btn.clicked.connect(lambda: self.mainWin.saveMaze(self.cells))
-        save_btn.setMinimumHeight(75)
+        save_btn.setMinimumHeight(100)
 
-        btn_layout.addWidget(solve_btn)
-        btn_layout.addSpacing(10)
-        btn_layout.addWidget(save_btn)
+        menu_btn = QPushButton("New maze", self)
+        menu_btn.setMinimumHeight(100)
+        menu_btn.setStyleSheet("background-color: " + BLUE + "; color: " + WHITE)
+        menu_btn.clicked.connect(lambda: self.mainWin.startStartUpUI())
+        menu_btn.setFont(FONT1)
+
+        btn_Hlayout.addWidget(solve_btn)
+        btn_Hlayout.addWidget(save_btn)
+
+        btn_Vlayout.addLayout(btn_Hlayout)
+        btn_Vlayout.addWidget(menu_btn)

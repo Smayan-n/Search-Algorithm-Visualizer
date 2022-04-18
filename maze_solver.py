@@ -47,8 +47,10 @@ class MazeSolver():
 
         #making sure there is a start and end
         if self.start is None or self.goal is None:
-            raise Exception("No start or end point found")
-    
+            return None
+        
+        return 1
+        
     def solve_maze(self, method):
         
         #keep track of the no of states explored
@@ -74,7 +76,7 @@ class MazeSolver():
             
             #if frontier is empty, there is no solution
             if frontier.empty():
-                raise Exception("No solution")
+                return None, None
 
             #remove a node from the frontier
             node = frontier.remove()

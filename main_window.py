@@ -176,6 +176,22 @@ class MainWindow(QMainWindow):
 
         return string_maze_template
 
+    def showWarning(self, warning):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+  
+        # setting Message box window title
+        msg.setWindowTitle("Warning")
+        
+        # setting message for Message Box
+        msg.setText(warning)
+        
+        # declaring buttons on Message Box
+        msg.setStandardButtons(QMessageBox.Ok)
+        
+        # start the app
+        msg.exec_()
+
 def start():
 
     #driver code to create a new QMainWindow object
