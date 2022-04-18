@@ -1,6 +1,5 @@
 from Frontiers import StackFrontier, QueueFrontier
 from Node import Node
-from maze_text_to_array_converter import convertTextFile
 
 class MazeSolver():
     

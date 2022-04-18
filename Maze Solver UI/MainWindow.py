@@ -6,7 +6,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
-from maze_basic import Maze
 
 from maze_text_to_array_converter import convertTextFile
 from startUpUI import StartUpUI
