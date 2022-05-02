@@ -1,4 +1,4 @@
-#converts text file and strings to @D array
+#converts text file and strings to 2D array
 def convertTextFile(filename):
     
     with open(filename, 'r') as f:

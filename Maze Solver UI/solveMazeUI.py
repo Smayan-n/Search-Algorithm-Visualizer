@@ -146,7 +146,7 @@ class SolveMazeUI(QWidget):
         self.dfs_btn = QRadioButton("Depth First Search    ", radio_widget)
 
         #checkbox for explored states
-        self.show_explored_checkBox = QCheckBox("Show explored states", radio_widget)
+        self.show_explored_checkBox = QCheckBox("Visualize", radio_widget)
 
         radio_layout.addWidget(self.a_star_btn)
         radio_layout.addWidget(self.bfs_btn)
