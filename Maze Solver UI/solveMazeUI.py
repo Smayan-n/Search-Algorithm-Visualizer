@@ -1,9 +1,10 @@
-from turtle import speed
 from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from numpy import save
+import sys
+#parent folder
+sys.path.append('./algorithms')
 
 from maze_text_to_array_converter import convertTextFile
 from maze_solver import MazeSolver

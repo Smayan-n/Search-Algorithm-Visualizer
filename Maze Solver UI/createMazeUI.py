@@ -2,8 +2,9 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from cv2 import solve
-from numpy import save
+import sys
+#parent folder
+sys.path.append('./algorithms')
 
 from maze_text_to_array_converter import ConvertString
 from constants import *
