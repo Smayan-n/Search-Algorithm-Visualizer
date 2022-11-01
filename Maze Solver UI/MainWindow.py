@@ -6,10 +6,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
-#parent folder
-sys.path.append('./algorithms')
 
-from maze_text_to_array_converter import convertTextFile
+from algorithms.maze_text_to_array_converter import convertTextFile
+# from utilities.maze_text_to_array_converter import convertTextFile
 from startUpUI import StartUpUI
 from solveMazeUI import SolveMazeUI
 from createMazeUI import CreateMazeUI

@@ -1,16 +1,12 @@
-from Frontiers import StackFrontier
-from Node import Node
-from maze_text_to_array_converter import convertTextFile
+from algorithms.frontiers import StackFrontier, QueueFrontier
+from algorithms.node import Node
+from algorithms.maze_text_to_array_converter import convertTextFile
 
-#uses A* search
-#calculates the most optimal path, but explores more states as a result
-
-#only heuristic search will not always calculate optimal path, but will explore lesser states
-
+#using bare DFS and BFS
 
 class Maze:
     def __init__(self, maze):
-
+        
         #parse 2d maze array
 
         #arr of boolean that stores true if wall, and false if no wall at that coord
@@ -82,7 +78,7 @@ class Maze:
             print() 
         print()
 
-    def solve(self):
+    def solve(self, method = "DFS"):
 
         #keep track of the no of states explored
         self.num_states_explored = 0
@@ -91,10 +87,15 @@ class Maze:
         self.explored = set()
 
         #starting node
-        start = Node(state=self.start, parent=None, action=None, goal=self.goal)
+        start = Node(state=self.start, parent=None, action=None)
         #init frontier
-        frontier = StackFrontier()
-
+        if method == "BFS":
+            frontier = QueueFrontier()
+        elif method == "DFS":
+            frontier = StackFrontier()
+        else:
+            raise Exception("Enter valid method: DFS or BFS")
+            
 
         #add starting node to frontier
         frontier.add(start)
@@ -119,25 +120,26 @@ class Maze:
                     actions.append(node.action)
                     states.append(node.state)
                     node = node.parent
-                    
+
                 #reversing because they are currently from the goal to the start
                 actions.reverse()
                 states.reverse()
                 self.solution = (actions, states)
+
                 return self.solution
+                
 
             #else add state to explored states
             self.explored.add(node.state)
 
+
             #adding neighbors to frontier if they are not already explored and are not currently in the frontier
             for action, state in self.neighbors(node.state):
                 if state not in self.explored and not frontier.contains_state(state):
-                    child_node = Node(state=state, parent=node, action=action, goal = self.goal)
+                    child_node = Node(state=state, parent=node, action=action)
                     frontier.add(child_node)
 
-            #sorting the nodes in the frontier are in descending order
-            #so that the ones with the lowest cost are explored first
-            frontier.sort_by_cost()  
+            
 
     def neighbors(self, state):
         row, col = state
@@ -153,10 +155,11 @@ class Maze:
                 approved_states.append((action, (row, col)))
 
         return approved_states
-    
-def main():
+     
 
-    #pasing in file to be parsed
+def main():
+    
+     #pasing in file to be parsed
     mazeTemplate = convertTextFile("mazes/maze8.txt")
     #maze object
     maze = Maze(mazeTemplate)
@@ -166,13 +169,15 @@ def main():
     maze.print()
     print("Solving....")
 
-    maze.solve()
+    #solve maze using BFS or DFS
+    maze.solve("DFS")
 
     #printing out solved maze
     print("Maze solved! ")
     print("states explored: " + str(maze.num_states_explored))
     print()
-    maze.print(show_solution=True, show_explored=False)   
+    maze.print(show_solution=True, show_explored=True)
+    
 
 if __name__ == '__main__':
     main()

@@ -1,12 +1,8 @@
-from PyQt5 import QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-import sys
-#parent folder
-sys.path.append('./algorithms')
 
-from maze_text_to_array_converter import ConvertString
+from algorithms.maze_text_to_array_converter import ConvertString
 from constants import *
 
 #class handles that UI that is used for the creation of mazes

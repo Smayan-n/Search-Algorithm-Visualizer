@@ -1,5 +1,6 @@
-#converts text file and strings to @D array
+
 def convertTextFile(filename):
+    '''converts text file and strings to 2D array'''
     
     with open(filename, 'r') as f:
         lines = f.readlines()
@@ -12,7 +13,9 @@ def convertTextFile(filename):
 
     return template
 
+
 def ConvertString(string):
+    '''converts string to 2D array'''
     lines = string.splitlines()
 
     template = []
