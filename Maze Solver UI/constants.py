@@ -21,7 +21,7 @@ STYLE1 = "border: 1px solid black; background-color: "
 
 #maze constants
 
-#dimention of each cell in the maze (square)
+#dimension of each cell in the maze (square)
 MAZE_CELL_SIZE = 60
 #space for buttons and controls above the maze
 MAZE_CTRL_SPACING = 250

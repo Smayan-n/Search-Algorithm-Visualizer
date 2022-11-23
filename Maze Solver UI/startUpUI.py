@@ -49,7 +49,7 @@ class StartUpUI(QWidget):
         self.layout.addWidget(self.createBtn)
 
         #displays a prompt to enter maze dimensions
-        create_lbl = QLabel("Enter Maze Dimentions: ")
+        create_lbl = QLabel("Enter Maze dimensions: ")
         create_lbl.setFont(FONT3)
         self.layout.addWidget(create_lbl)
         
@@ -81,7 +81,7 @@ class StartUpUI(QWidget):
         if self.entry_box1.text() != "" and self.entry_box2.text() != "":
             rows = int(self.entry_box1.text())
             cols = int(self.entry_box2.text())
-            #validating dimentions range
+            #validating dimensions range
             if rows > 25: self.setError(self.entry_box1)
             else: self.clearError(self.entry_box1)
             if cols > 55: self.setError(self.entry_box2)

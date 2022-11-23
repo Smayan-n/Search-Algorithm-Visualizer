@@ -8,7 +8,7 @@ from constants import *
 #class handles that UI that is used for the creation of mazes
 #it can also be used to load mazes and edit them
 class CreateMazeUI(QWidget):
-    def __init__(self, mainWin=None, dimentions = None, maze_template = None):
+    def __init__(self, mainWin=None, dimensions = None, maze_template = None):
         super(CreateMazeUI, self).__init__(mainWin)
 
         self.mainWin = mainWin
@@ -35,12 +35,12 @@ class CreateMazeUI(QWidget):
             self.initCreateUI()
         #if mo maze template is passed in, then create empty maze
         else:
-            self.createMaze(dimentions)
+            self.createMaze(dimensions)
 
 
-    def createMaze(self, dimentions):
+    def createMaze(self, dimensions):
 
-        self.rows, self.cols = dimentions
+        self.rows, self.cols = dimensions
         self.initGame()
         self.initCreateUI()
 

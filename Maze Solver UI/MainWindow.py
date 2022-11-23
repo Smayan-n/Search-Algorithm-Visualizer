@@ -47,8 +47,8 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.mazeWin)
         self.show()
 
-    def startCreateUI(self, dimentions = None, maze_template = None):
-        self.createWin = CreateMazeUI(self, dimentions, maze_template)
+    def startCreateUI(self, dimensions = None, maze_template = None):
+        self.createWin = CreateMazeUI(self, dimensions, maze_template)
         self.setCentralWidget(self.createWin)
         self.show()
 
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         #prompts user to load file
     def loadMaze(self):
         try:
-            #propmpts user to select a file
+            #prompts user to select a file
             filePath = self.fileDialog.getOpenFileName(self, "Open a maze", "", "Text Files (*.txt)")[0]
             #parses text file and stores in a 2D array
             maze_template = convertTextFile(filePath)
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         except:
             pass
 
-    #spropmpts user to save maze as text file
+    #prompts user to save maze as text file
     def saveMaze(self, maze_cells):
         try:
             self.maze_template = self.parseUIMaze(maze_cells)
